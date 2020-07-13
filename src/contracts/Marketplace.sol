@@ -1,64 +1,74 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.5.0;
 
 contract Marketplace {
     string public name;
-    uint public productCount = 0;
-    mapping(uint => Product) public products;
+    uint256 public productCount = 0;
+    mapping(uint256 => Product) public products;
 
     struct Product {
-        uint id;
+        uint256 id;
         string name;
-        uint price;
+        uint256 price;
         address payable owner;
         bool purchased;
     }
 
     event ProductCreated(
-        uint id,
+        uint256 id,
         string name,
-        uint price,
+        uint256 price,
         address payable owner,
         bool purchased
     );
 
     event ProductPurchased(
-        uint id,
+        uint256 id,
         string name,
-        uint price,
+        uint256 price,
         address payable owner,
         bool purchased
     );
 
     constructor() public {
-        name = "Dapp University Marketplace";
+        name = "My Marketplace";
     }
 
-    function createProduct(string memory _name, uint _price) public {
+    function createProduct(string memory _name, uint256 _price) public {
         // Require a valid name
-        require(bytes(_name).length > 0);
+        require(bytes(_name).length > 0, "valid name requires");
         // Require a valid price
-        require(_price > 0);
+        require(_price > 0, "valid amount of ether required");
         // Increment product count
-        productCount ++;
+        productCount++;
         // Create the product
-        products[productCount] = Product(productCount, _name, _price, msg.sender, false);
+        products[productCount] = Product(
+            productCount,
+            _name,
+            _price,
+            msg.sender,
+            false
+        );
         // Trigger an event
         emit ProductCreated(productCount, _name, _price, msg.sender, false);
     }
 
-    function purchaseProduct(uint _id) public payable {
+    function purchaseProduct(uint256 _id) public payable {
         // Fetch the product
         Product memory _product = products[_id];
         // Fetch the owner
         address payable _seller = _product.owner;
         // Make sure the product has a valid id
-        require(_product.id > 0 && _product.id <= productCount);
+        require(
+            _product.id > 0 && _product.id <= productCount,
+            "product id is required"
+        );
         // Require that there is enough Ether in the transaction
-        require(msg.value >= _product.price);
+        require(msg.value >= _product.price, "not enough money provided");
         // Require that the product has not been purchased already
-        require(!_product.purchased);
+        require(!_product.purchased, "product is not for sale");
         // Require that the buyer is not the seller
-        require(_seller != msg.sender);
+        require(_seller != msg.sender, "seller cant buy his own product");
         // Transfer ownership to the buyer
         _product.owner = msg.sender;
         // Mark as purchased
@@ -66,8 +76,14 @@ contract Marketplace {
         // Update the product
         products[_id] = _product;
         // Pay the seller by sending them Ether
-        address(_seller).transfer(msg.value);
+        _seller.transfer(msg.value);
         // Trigger an event
-        emit ProductPurchased(productCount, _product.name, _product.price, msg.sender, true);
+        emit ProductPurchased(
+            productCount,
+            _product.name,
+            _product.price,
+            msg.sender,
+            true
+        );
     }
 }
