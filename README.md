@@ -23,6 +23,7 @@ A blockchain application where sellers can post items for sale and buyers can pa
 <br>
 * After the product has been purchased the owners address is changed and it is no longer available for purchase
 <br>
+
 * The accounts used are imported from ganache and the we are given an initial 100 ether per account, the balance of the accounts can be seen in ganache aswell as metamask extention
 <br><br>
 
